@@ -1,3 +1,6 @@
+import json
+import time
+
 import typer, base64
 from llm_benchmark import check_models
 from llm_benchmark import check_ollama
@@ -68,18 +71,31 @@ def run(ollamabin: str = 'ollama' , sendinfo : bool = True , custombenchmark : s
         bench_results_info.update({"llama2:7b":7.65})
         bench_results_info.update({"gemma2:7b":17.77})
 
-    if (sendinfo==True):
-        print(f"Sending the following data to a remote server")
-        print(f"Your machine UUID : {sysmain.get_uuid()}")
-        #print(f"{bench_results_info.items()}")
-        x = connection.send_benchmark(sysmain.get_uuid(),ollama_version,bench_results_info)
-        #print(x)
-        print('=='*10)
-        #print(f"{sys_info.items()}")
-        sys_info = sysmain.get_extra()
-        sys_info['uuid']=f"{sysmain.get_uuid()}"
-        x = connection.send_sysinfo(sys_info)
-        #print(x)
+    # if (sendinfo==True):
+    print(f"Sending the following data to a remote server")
+    print(f"Your machine UUID : {sysmain.get_uuid()}")
+    print(f"{bench_results_info.items()}")
+    print(sysmain.get_uuid(),ollama_version,bench_results_info)
+    # x = connection.send_benchmark(sysmain.get_uuid(),ollama_version,bench_results_info)
+    #print(x)
+    print('=='*10)
+    print(f"{sys_info.items()}")
+    sys_info = sysmain.get_extra()
+    sys_info['uuid']=f"{sysmain.get_uuid()}"
+    # x = connection.send_sysinfo(sys_info)
+    #print(x)
+    print(sys_info)
+
+    timestamp = time.time()
+    data = {'sys_info': sys_info, 'uuid': f"{sysmain.get_uuid()}", 'ollama_version': ollama_version,
+            'bench_results_info': bench_results_info}
+
+
+    print(data)
+
+    with open(f"results_{timestamp}.json", "w") as file:
+        # Write JSON data to the file
+        json.dump(data, file, indent=4)
 
 
 @app.command()
@@ -101,8 +117,9 @@ def sysinfo(formal: bool = True):
         print(f"os_version: {sys_info['os_version']}")
         print(f"Your machine UUID : {sys_info['uuid']}")
 
-        x = connection.send_sysinfo(sys_info)
-        print(x)
+        # x = connection.send_sysinfo(sys_info)
+        # print(x)
+        print(sys_info)
     else:
         print(f"No print!")
 
